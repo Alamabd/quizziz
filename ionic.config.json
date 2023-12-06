@@ -1,0 +1,7 @@
+{
+  "name": "Disaster Quizziz",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
