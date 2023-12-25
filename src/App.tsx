@@ -1,10 +1,23 @@
-import { IonApp, IonRouterOutlet, IonSplitPane, setupIonicReact } from '@ionic/react';
+// Ionic React
+import { IonApp, IonPage, IonRouterOutlet, IonSplitPane, createAnimation, setupIonicReact } from '@ionic/react';
+import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
+
+// Plugin
+import { StatusBar } from '@capacitor/status-bar';
+
+// Components
 import Menu from './components/Menu';
+
+// Pages
 import Page from './pages/Page';
+import Information from './pages/Information';
+import Quiz from './pages/Quiz';
+import Raters from './pages/Rater';
 
 /* Core CSS required for Ionic components to work properly */
+import './app.css';
 import '@ionic/react/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
@@ -26,20 +39,62 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
+
+  const setOverlay = async () => {
+    await StatusBar.setOverlaysWebView({overlay: true});
+  }
+
+  const animeBuilder = (baseEl: any , opts: any) => {
+    const entering = createAnimation()
+      .addElement(opts.enteringEl)
+      .fromTo('opacity', 1, 1)
+
+    const leaving = createAnimation()
+      .addElement(opts.leavingEl)
+      .fromTo('opacity', 1, 0)
+
+    const animation = createAnimation()
+      .addAnimation(entering)
+      .addAnimation(leaving);
+
+    if(opts.direction === 'forward') {
+      entering.fromTo('transform', 'translateX(100px)', 'translateX(0px')
+      .duration(200);
+    } else {
+      entering.fromTo('transform', 'translateX(-100px)', 'translateX(0px')
+      .duration(200);
+    }
+    return animation;
+  }
+
+  useEffect(() => {
+    setOverlay();
+  }, [])
   return (
     <IonApp>
       <IonReactRouter>
-        <IonSplitPane contentId="main">
-          <Menu />
-          <IonRouterOutlet id="main">
+          <IonRouterOutlet animation={animeBuilder}>
             <Route path="/" exact={true}>
-              <Redirect to="/folder/Inbox" />
+              <Redirect to="/page" />
             </Route>
-            <Route path="/folder/:name" exact={true}>
-              <Page />
+            <Route path="/page/" exact={true}>
+              <IonSplitPane contentId="main">
+                <Menu />
+                <IonPage id='main'>
+                  <Page />
+                </IonPage>
+              </IonSplitPane>
+            </Route>
+            <Route path="/information/" exact={true}>
+              <Information />
+            </Route>
+            <Route path="/quiz/:part/:number" exact={true}>
+              <Quiz />
+            </Route>
+            <Route path="/rater" exact>
+              <Raters />
             </Route>
           </IonRouterOutlet>
-        </IonSplitPane>
       </IonReactRouter>
     </IonApp>
   );
